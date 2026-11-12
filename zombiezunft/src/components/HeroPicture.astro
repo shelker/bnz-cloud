@@ -1,0 +1,30 @@
+---
+/**
+ * Eine Hero-Bildebene. Auf dem Handy (< 768px) wird statt des Vollformats ein zugeschnittenes,
+ * verschmolzenes Bild geladen (`mobile`) – oder ein 1×1-Platzhalter für Ebenen, die dort entfallen.
+ */
+interface Props {
+  file: string;
+  mobile: 'bg' | 'fg' | 'none';
+  priority?: boolean;
+  class?: string;
+}
+
+const { file, mobile, priority = false, class: className } = Astro.props;
+const mobileSrc = `/layers/opt/mobile/${mobile === 'none' ? 'empty' : mobile}.webp`;
+---
+
+<picture>
+  <source media="(max-width: 767px)" srcset={mobileSrc} />
+  <img
+    class={className}
+    src={`/layers/opt/${file}.webp`}
+    srcset={`/layers/opt/${file}-900.webp 900w, /layers/opt/${file}.webp 1672w`}
+    sizes="max(100vw, 178vh)"
+    alt=""
+    width="1672"
+    height="941"
+    decoding={priority ? 'sync' : 'async'}
+    fetchpriority={priority ? 'high' : 'auto'}
+  />
+</picture>

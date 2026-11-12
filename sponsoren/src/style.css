@@ -1,0 +1,44 @@
+/* IBM Plex Sans - lokal eingebunden */
+@import '@fontsource/ibm-plex-sans/400.css';
+@import '@fontsource/ibm-plex-sans/500.css';
+@import '@fontsource/ibm-plex-sans/600.css';
+@import '@fontsource/ibm-plex-sans/700.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bnz-600: #C41E3A;
+    --bnz-700: #9B1630;
+  }
+  html {
+    @apply antialiased;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body {
+    @apply font-sans text-slate-800 bg-slate-50 m-0 min-h-screen;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'IBM Plex Sans', system-ui, -apple-system, sans-serif !important;
+  }
+  button, a, [role="button"], input[type="submit"], input[type="button"] {
+    @apply cursor-pointer;
+  }
+  button:disabled {
+    @apply cursor-not-allowed;
+  }
+}
+
+@layer components {
+  .header-bnz {
+    background-color: #C41E3A;
+  }
+}
+
+/* Safe area für Mobile-Bottom-Bar (Notch etc.) */
+.safe-area-pb {
+  padding-bottom: max(1.25rem, calc(env(safe-area-inset-bottom, 0px) + 0.5rem));
+}

@@ -1,0 +1,139 @@
+---
+import { links } from '../config/event.ts';
+---
+
+<div class="consent" data-consent role="dialog" aria-labelledby="consent-title" aria-describedby="consent-text" hidden>
+  <p class="consent__title" id="consent-title">Deine Privatsphäre</p>
+  <p class="consent__text" id="consent-text">
+    Wir messen die Reichweite mit Matomo und binden den Ticketshop von EVENTIM.Light ein. Beides startet erst mit deiner
+    Zustimmung. Den Shop kannst du auch ohne in einem neuen Tab öffnen. Mehr in der
+    <a href={links.datenschutz} target="_blank" rel="noopener">Datenschutzerklärung</a>.
+  </p>
+  <div class="consent__actions">
+    <button type="button" class="consent__btn consent__btn--primary" data-consent-accept>Alle akzeptieren</button>
+    <button type="button" class="consent__btn" data-consent-reject>Nur Notwendige</button>
+  </div>
+</div>
+
+<style>
+  .consent {
+    position: fixed;
+    z-index: 70;
+    left: 1rem;
+    right: 1rem;
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    max-width: 30rem;
+    padding: 1.25rem 1.35rem 1.35rem;
+    background: rgb(12 14 24 / 0.98);
+    border: 1px solid rgb(246 237 214 / 0.18);
+    box-shadow: 0 20px 60px rgb(0 0 0 / 0.55);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    animation: consent-in 500ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+
+  .consent[hidden] {
+    display: none;
+  }
+
+  .consent__title {
+    margin: 0 0 0.4rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.1rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-gold);
+  }
+
+  .consent__text {
+    margin: 0 0 1.1rem;
+    color: rgb(246 237 214 / 0.85);
+  }
+
+  .consent__text a {
+    color: var(--color-cream);
+    text-decoration: underline;
+    text-decoration-color: var(--color-gold);
+    text-underline-offset: 3px;
+  }
+
+  .consent__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  .consent__btn {
+    flex: 1 1 9rem;
+    min-height: 2.9rem;
+    padding: 0 1rem;
+    border: 1px solid var(--color-cream);
+    background: transparent;
+    color: var(--color-cream);
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.07em;
+    white-space: nowrap;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color 160ms ease, color 160ms ease;
+  }
+
+  .consent__btn:hover {
+    background: rgb(246 237 214 / 0.12);
+  }
+
+  .consent__btn--primary {
+    background: var(--color-cream);
+    color: var(--color-ink);
+  }
+
+  .consent__btn--primary:hover {
+    background: var(--color-gold);
+  }
+
+  @keyframes consent-in {
+    from { opacity: 0; transform: translateY(1rem); }
+    to { opacity: 1; transform: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .consent { animation: none; }
+  }
+</style>
+
+<script>
+  import { getConsent, onConsent, openConsentSettings, setConsent } from '../lib/consent';
+  import { loadMatomo } from '../lib/matomo';
+
+  const banner = document.querySelector<HTMLElement>('[data-consent]');
+
+  if (banner) {
+    const show = () => {
+      banner.hidden = false;
+      banner.querySelector<HTMLElement>('[data-consent-accept]')?.focus({ preventScroll: true });
+    };
+    const decide = (all: boolean) => {
+      setConsent({ stats: all, media: all });
+      banner.hidden = true;
+    };
+
+    banner.querySelector('[data-consent-accept]')?.addEventListener('click', () => decide(true));
+    banner.querySelector('[data-consent-reject]')?.addEventListener('click', () => decide(false));
+    window.addEventListener('consent-open', show);
+    window.addEventListener('consent-change', () => (banner.hidden = true));
+    document.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('[data-consent-settings]')) openConsentSettings();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !banner.hidden && getConsent()) banner.hidden = true;
+    });
+
+    onConsent((c) => {
+      if (c.stats) loadMatomo();
+    });
+    if (!getConsent()) show();
+  }
+</script>

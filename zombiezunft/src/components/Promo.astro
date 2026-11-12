@@ -1,0 +1,270 @@
+---
+import { event, links } from '../config/event.ts';
+
+---
+
+<section id="fakten" class="promo scroll-mt-8 px-5 py-20 md:py-32" aria-labelledby="promo-title">
+  <div class="mx-auto max-w-6xl">
+    <div class="story reveal">
+      <div>
+        <p class="kicker">Die Verwandlung</p>
+        <h2 id="promo-title" class="promo__title">
+          Aus der Narrenzunft wird die <em>Zombiezunft.</em>
+        </h2>
+      </div>
+      <div class="prose">
+        <p>
+          Das ganze Jahr über ist sie die <strong>{event.host}</strong>. Doch am 
+          <strong>{event.dateLabel}</strong> legt die Zunft ihre Uniform und Schiffchen ab, steigt aus den Gräbern und
+          nimmt das <strong>{event.place}</strong> in Besitz. Aus Narren werden Zombies, und das Schloss wird zur
+          Halloween-Nacht des Jahres.
+        </p>
+        <p>
+          {event.age}, verkleidet, mit Lust auf feinste Musik und bestes Licht. Dazu die Zutaten, die eine Party
+          unvergesslich machen: kalte Getränke, gute Leute und ein Schloss als Kulisse.
+        </p>
+        <p class="credit">
+          Von den Machern der Ü35-Party <b>„Discofever“</b>, die zuletzt ausverkauft war. Wer dabei war, weiß, wie wir feiern.
+        </p>
+      </div>
+    </div>
+
+    <div class="contest reveal">
+      <p class="kicker">Kostümwettbewerb</p>
+      <p class="contest__title">Einzeln oder als Gruppe.<br /><em>Es warten Preise.</em></p>
+      <p class="contest__text">
+        Wer das Schloss mit dem besten Kostüm erschreckt, wird belohnt! Wir prämieren Einzel- und Gruppenkostüme. Lasst euch also etwas einfallen, am besten gemeinsam mit der ganzen Clique.
+      </p>
+    </div>
+
+    <ul class="practical reveal" aria-label="Das Wichtigste in Kürze">
+      {
+        event.earlyBite.active ? (
+          <li>
+            <b>{event.earlyBite.label} {event.earlyBite.price}</b>, danach {event.price} {event.priceNote}
+          </li>
+        ) : (
+          <li><b>{event.price}</b> {event.priceNote}</li>
+        )
+      }
+      <li>Garderobe vor Ort</li>
+      <li>Kartenzahlung möglich</li>
+    </ul>
+
+    <div class="scarcity reveal">
+      <p class="scarcity__title">Begrenzte Karten.<br />Wer zu spät kommt,<br />bleibt draußen.</p>
+      <p class="scarcity__text">
+        Im Schloss ist Platz für eine begrenzte Zahl an Gästen, und genau das macht die Nacht aus. Wer dabei sein will,
+        sichert sich sein Ticket jetzt. Ist die Party ausverkauft, gibt es keine weiteren Karten.
+      </p>
+      <a class="btn" href="#tickets">Jetzt Ticket sichern</a>
+    </div>
+
+    <div class="lockup reveal">
+      <div>
+        <p class="lockup-date">
+          <time datetime={event.dateTime}>{event.dateLabel}</time>
+        </p>
+        <p class="lockup-meta text-gold">{event.timeLabel}</p>
+        <p class="lockup-meta">{event.place}</p>
+      </div>
+      <div class="lockup-rule" aria-hidden="true"></div>
+      <div class="lockup-links">
+        <a class="btn" href="#tickets">Infos &amp; Tickets</a>
+        <a class="btn-ghost" href={event.mapsUrl} target="_blank" rel="noopener noreferrer">Route zum Schloss</a>
+      </div>
+    </div>
+
+    <p class="promo__host reveal">
+      Veranstalter:
+      <a href={links.organizer} target="_blank" rel="noopener">{event.host}</a>
+    </p>
+  </div>
+</section>
+
+<style>
+  .promo {
+    background:
+      radial-gradient(60% 40% at 85% 0%, rgb(255 106 26 / 0.09), transparent 70%),
+      var(--color-night);
+  }
+
+  .kicker {
+    margin: 0 0 1rem;
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 0.9rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--color-gold);
+  }
+
+  .promo__title {
+    margin: 0;
+    max-width: 13ch;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(2.7rem, 7vw, 6rem);
+    line-height: 0.95;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+  }
+
+  em {
+    font-style: normal;
+    color: var(--color-gold);
+  }
+
+  .story {
+    display: grid;
+    gap: 2.25rem;
+  }
+
+  .prose {
+    max-width: 40rem;
+    font-size: 1.25rem;
+  }
+
+  .prose p {
+    margin: 0 0 1.2rem;
+  }
+
+  .prose strong {
+    color: var(--color-cream);
+    font-weight: 700;
+  }
+
+  .credit {
+    padding-left: 1.1rem;
+    border-left: 2px solid var(--color-ember);
+    color: rgb(246 237 214 / 0.82);
+  }
+
+  .credit b {
+    color: var(--color-gold);
+  }
+
+  .contest {
+    margin-top: clamp(4.5rem, 10vw, 8rem);
+    max-width: 52rem;
+  }
+
+  .contest__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(2.2rem, 5.6vw, 4.6rem);
+    line-height: 1;
+    letter-spacing: 0.015em;
+    text-transform: uppercase;
+  }
+
+  .contest__text {
+    max-width: 38rem;
+    margin: 1.4rem 0 0;
+    font-size: 1.25rem;
+  }
+
+  .practical {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 0;
+    margin: clamp(3.5rem, 8vw, 6rem) 0 0;
+    padding: 1.25rem 0;
+    list-style: none;
+    border-block: 1px solid rgb(246 237 214 / 0.14);
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(1rem, 2vw, 1.35rem);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .practical b {
+    color: var(--color-gold);
+    font-weight: 700;
+  }
+
+  .practical li + li::before {
+    content: '';
+    display: inline-block;
+    width: 1px;
+    height: 0.95em;
+    margin: 0 1.2em;
+    vertical-align: -0.1em;
+    background: var(--color-gold);
+  }
+
+  .scarcity {
+    margin-top: clamp(4.5rem, 10vw, 8rem);
+    max-width: 46rem;
+  }
+
+  .scarcity__title {
+    margin: 0 0 1.1rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(2rem, 5vw, 3.8rem);
+    line-height: 1;
+    letter-spacing: 0.015em;
+    text-transform: uppercase;
+  }
+
+  .scarcity__text {
+    margin: 0 0 1.75rem;
+    font-size: 1.15rem;
+    color: rgb(246 237 214 / 0.82);
+  }
+
+  .promo .lockup {
+    margin-top: clamp(4.5rem, 10vw, 8rem);
+    padding-top: 3rem;
+    border-top: 1px solid rgb(246 237 214 / 0.1);
+  }
+
+  .lockup-links {
+    display: grid;
+    gap: 0.9rem;
+  }
+
+  .promo__host {
+    margin: 3rem 0 0;
+    font-size: 1rem;
+    color: rgb(246 237 214 / 0.65);
+  }
+
+  .promo__host a {
+    color: var(--color-cream);
+    text-decoration: underline;
+    text-decoration-color: var(--color-gold);
+    text-underline-offset: 4px;
+  }
+
+  @media (max-width: 599px) {
+    .practical {
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .practical li + li::before {
+      display: none;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .story {
+      grid-template-columns: 1.1fr 1fr;
+      align-items: end;
+      gap: 4rem;
+    }
+
+    .contest {
+      margin-left: auto;
+      text-align: right;
+    }
+
+    .contest__text {
+      margin-left: auto;
+    }
+  }
+</style>

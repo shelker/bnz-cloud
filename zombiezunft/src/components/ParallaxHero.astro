@@ -1,0 +1,988 @@
+---
+import { event } from '../config/event.ts';
+import HeroPicture from './HeroPicture.astro';
+
+const batFlights = [
+  { top: '14%', size: '2.1rem', duration: '23s', delay: '-4s', flap: '0.55s' },
+  { top: '27%', size: '1.5rem', duration: '31s', delay: '-17s', flap: '0.46s' },
+  { top: '8%', size: '1.1rem', duration: '38s', delay: '-26s', flap: '0.4s' },
+];
+---
+
+<section class="hero" data-hero aria-label="Schloss Bedburg bei Vollmond">
+  <div class="hero__pin">
+    <div class="hero__stage">
+      <div class="camera">
+        <div class="layer" data-layer="sky">
+          <div class="cover">
+            <HeroPicture file="01-himmel-mond-wolken" mobile="bg" priority />
+            <span class="moon-glow"></span>
+          </div>
+        </div>
+
+        <div class="layer" data-layer="castle">
+          <div class="cover">
+            <HeroPicture file="02-schloss" mobile="none" priority />
+          </div>
+        </div>
+
+        <div class="layer" data-layer="fogback" aria-hidden="true">
+          <div class="fog fog--back"></div>
+        </div>
+
+        <div class="layer" data-layer="trees">
+          <div class="cover">
+            <HeroPicture file="03-baeume-vor-schloss" mobile="none" priority />
+          </div>
+        </div>
+
+        <div class="layer" data-layer="mist">
+          <div class="cover">
+            <HeroPicture file="04-nebel-wasser-zombies" mobile="none" />
+          </div>
+        </div>
+
+        <div class="layer" data-layer="fogfront" aria-hidden="true">
+          <div class="fog fog--front"></div>
+        </div>
+
+        <canvas class="embers" data-embers aria-hidden="true"></canvas>
+
+        <div class="layer" data-layer="bats" aria-hidden="true">
+          <div class="cover">
+            <HeroPicture class="bats" file="07-fledermaeuse" mobile="none" />
+          </div>
+          {
+            batFlights.map((b) => (
+              <svg
+                class="flyer"
+                viewBox="0 0 64 28"
+                style={`--top:${b.top};--size:${b.size};--dur:${b.duration};--delay:${b.delay};--flap:${b.flap}`}
+              >
+                <g class="flyer__bob">
+                  <path class="wing wing--l" d="M32 14C26 6 14 3 2 6c4 2 6 5 6 9 3-2 6-2 8 1 2-2 5-2 7 1 2-1 6-2 9-3z" />
+                  <path class="wing wing--r" d="M32 14c6-8 18-11 30-8-4 2-6 5-6 9-3-2-6-2-8 1-2-2-5-2-7 1-2-1-6-2-9-3z" />
+                  <ellipse cx="32" cy="15" rx="3.4" ry="5" />
+                  <path d="M29.5 11 28.5 6l3 3zm5 0 1-5-3 3z" />
+                </g>
+              </svg>
+            ))
+          }
+        </div>
+
+        <div class="layer" data-layer="fg">
+          <div class="cover">
+            <HeroPicture file="05-vordergrund" mobile="fg" />
+          </div>
+        </div>
+
+        <div class="layer" data-layer="branches">
+          <div class="cover">
+            <HeroPicture file="06-seitliche-aeste" mobile="none" />
+          </div>
+        </div>
+      </div>
+
+      <div class="shade" aria-hidden="true"></div>
+      <div class="vignette" aria-hidden="true"></div>
+      <div class="veil" data-veil aria-hidden="true"></div>
+      <div class="curtain" aria-hidden="true"></div>
+    </div>
+
+    <div class="copy" data-copy>
+      <p class="eyebrow">
+        <span class="eyebrow__rule"></span>
+        Bedburger Zombiezunft präsentiert
+      </p>
+      <h1 class="title">
+        <span class="title__line"><span>Halloween</span></span>
+        <span class="title__line">
+          <span>Party <b class="badge">{event.age}</b></span>
+        </span>
+      </h1>
+      <ul class="facts">
+        <li>
+          <time datetime={event.dateTime}>{event.dateLabel}</time>
+        </li>
+        <li>{event.timeLabel}</li>
+        <li>{event.place}</li>
+      </ul>
+      <div class="cta">
+        <a class="btn" href="#tickets">Tickets sichern</a>
+        <a class="btn-link" href="#fakten">Mehr Infos</a>
+      </div>
+    </div>
+
+    <p class="awake" data-awake aria-hidden="true">{event.tagline}</p>
+
+    <a class="scroll-hint" data-hint href="#fakten" aria-label="Zu den Infos scrollen">
+      <span>Scrollen</span>
+      <i></i>
+    </a>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    height: 240vh;
+    --glow: 1;
+  }
+
+  .hero__pin {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100svh; /* stabil: ändert sich nicht, wenn die Adressleiste ein-/ausfährt */
+    overflow: hidden;
+    display: grid;
+    container-type: size;
+    background: var(--color-night);
+  }
+
+  .hero__stage,
+  .copy,
+  .awake,
+  .scroll-hint {
+    grid-area: 1 / 1;
+  }
+
+  .hero__stage {
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ---------- Kamera & Ebenen ---------- */
+  .camera {
+    position: absolute;
+    inset: 0;
+    transform-origin: 62% 58%;
+    animation: camera-in 3.2s cubic-bezier(0.16, 0.84, 0.3, 1) backwards;
+  }
+
+  .layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    transform-origin: 62% 58%;
+    will-change: transform;
+  }
+
+  .layer[data-layer='sky'] { z-index: 1; }
+  .layer[data-layer='castle'] { z-index: 2; }
+  .layer[data-layer='fogback'] { z-index: 3; }
+  .layer[data-layer='trees'] { z-index: 4; }
+  .layer[data-layer='mist'] { z-index: 5; }
+  .layer[data-layer='fogfront'] { z-index: 6; }
+  .embers { z-index: 7; }
+  .layer[data-layer='bats'] { z-index: 8; }
+  .layer[data-layer='fg'] { z-index: 9; }
+  .layer[data-layer='branches'] { z-index: 10; }
+
+  /* Bild-Box mit "cover"-Verhalten – daran hängen auch die Glow-Overlays */
+  .cover {
+    --ox: 0.58;
+    --oy: 0.44;
+    --w: max(100cqw, calc(100cqh * 1.7767));
+    --h: calc(var(--w) * 0.5629);
+    position: absolute;
+    width: var(--w);
+    height: var(--h);
+    left: calc((100cqw - var(--w)) * var(--ox));
+    top: calc((100cqh - var(--h)) * var(--oy));
+  }
+
+  .cover :global(picture) {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .cover :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Mondschein: ruhiges, langsames Atmen – bewusst ohne Überblend-Modus und ohne abrupte Sprünge */
+  .moon-glow {
+    position: absolute;
+    left: 81%;
+    top: 18.6%;
+    width: 34%;
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    pointer-events: none;
+    background: radial-gradient(circle, rgb(255 226 160 / 0.42) 0%, rgb(255 190 110 / 0.14) 34%, transparent 66%);
+    animation: moon-pulse 9s ease-in-out infinite;
+  }
+
+  @keyframes moon-pulse {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
+  }
+
+  @keyframes camera-in {
+    from { transform: scale(1.12); }
+    to { transform: scale(1); }
+  }
+
+  /* ---------- Nebel ---------- */
+  .fog {
+    position: absolute;
+    left: 0;
+    width: 200%;
+    background-repeat: repeat-x;
+    background-size: 50% 100%;
+    pointer-events: none;
+    animation: fog-drift linear infinite;
+  }
+
+  .fog--back {
+    bottom: 24%;
+    height: 36%;
+    background-image: url('/fx/fog-a.webp');
+    opacity: 0.5;
+    animation-duration: 140s;
+  }
+
+  .fog--front {
+    bottom: 0;
+    height: 42%;
+    background-image: url('/fx/fog-b.webp');
+    opacity: 0.42;
+    animation-duration: 95s;
+    animation-direction: reverse;
+  }
+
+  @keyframes fog-drift {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(-50%, 0, 0); }
+  }
+
+  /* ---------- Glut ---------- */
+  .embers {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  /* ---------- Fledermäuse ---------- */
+  .cover :global(img.bats) {
+    animation: bat-float 9s ease-in-out infinite;
+  }
+
+  @keyframes bat-float {
+    0%, 100% { transform: translate3d(0, 0, 0); }
+    50% { transform: translate3d(1.4vw, -1vh, 0); }
+  }
+
+  .flyer {
+    position: absolute;
+    left: 0;
+    top: var(--top);
+    width: var(--size);
+    height: auto;
+    fill: #05070d;
+    animation: fly var(--dur) linear var(--delay) infinite;
+    will-change: transform;
+  }
+
+  .flyer__bob {
+    animation: bob 2.6s ease-in-out infinite;
+  }
+
+  .wing {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    animation: flap var(--flap) ease-in-out infinite alternate;
+  }
+
+  .wing--l { transform-origin: 100% 100%; }
+  .wing--r { transform-origin: 0% 100%; }
+
+  @keyframes fly {
+    from { transform: translate3d(-12vw, 0, 0); }
+    to { transform: translate3d(112vw, -8vh, 0); }
+  }
+
+  @keyframes bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(1.2vh); }
+  }
+
+  @keyframes flap {
+    from { transform: scaleY(1) rotate(0deg); }
+    to { transform: scaleY(0.25) rotate(0deg); }
+  }
+
+  /* ---------- Licht & Verläufe ---------- */
+  .shade,
+  .vignette,
+  .veil,
+  .curtain {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    pointer-events: none;
+  }
+
+  .shade {
+    background:
+      linear-gradient(to right, rgb(7 11 20 / 0.82) 0%, rgb(7 11 20 / 0.5) 28%, transparent 56%),
+      linear-gradient(to bottom, rgb(7 11 20 / 0.75) 0%, transparent 22%),
+      linear-gradient(to top, rgb(7 11 20 / 0.9) 0%, rgb(7 11 20 / 0.35) 14%, transparent 34%);
+  }
+
+  .vignette {
+    box-shadow: inset 0 0 16vw rgb(0 0 0 / 0.6);
+    opacity: 0.8;
+  }
+
+  .veil {
+    background: var(--color-night);
+    opacity: 0;
+  }
+
+  .curtain {
+    z-index: 30;
+    background: #000;
+    animation: curtain-up 1.8s ease-out 0.1s both;
+  }
+
+  @keyframes curtain-up {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+
+  /* ---------- Text ---------- */
+  .copy {
+    position: relative;
+    z-index: 25;
+    align-self: center;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 5rem var(--edge-hero) 6vh;
+    will-change: transform, opacity;
+  }
+
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    margin: 0 0 1.1rem;
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(0.72rem, 1.15vw, 0.95rem);
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--color-gold);
+    animation: rise 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) 0.9s both;
+  }
+
+  .eyebrow__rule {
+    width: 2.75rem;
+    height: 1px;
+    background: currentColor;
+    transform-origin: left;
+    animation: grow 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.8s both;
+  }
+
+  .title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(3.4rem, min(8.8vw, 17vh), 9.5rem);
+    line-height: 0.9;
+    letter-spacing: 0.015em;
+    text-transform: uppercase;
+    text-shadow: 0 4px 40px rgb(0 0 0 / 0.55);
+  }
+
+  .title__line {
+    display: block;
+    overflow: hidden;
+    padding: 0.03em 0.06em 0.05em;
+    margin: -0.03em -0.06em -0.05em;
+  }
+
+  .title__line > span {
+    display: inline-block;
+    animation: line-up 1.3s cubic-bezier(0.16, 0.84, 0.24, 1) both;
+  }
+
+  .title__line:nth-child(1) > span { animation-delay: 1s; }
+  .title__line:nth-child(2) > span { animation-delay: 1.14s; }
+
+  .badge {
+    display: inline-block;
+    vertical-align: 0.34em;
+    margin-left: 0.18em;
+    padding: 0.08em 0.3em 0.02em;
+    border: 0.045em solid var(--color-gold);
+    font-weight: 600;
+    font-size: 0.26em;
+    line-height: 1.1;
+    letter-spacing: 0.06em;
+    color: var(--color-gold);
+    text-shadow: none;
+  }
+
+  .facts {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 1.7rem 0 0;
+    padding: 0;
+    list-style: none;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1rem, 1.9vw, 1.5rem);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    animation: rise 1s cubic-bezier(0.2, 0.8, 0.2, 1) 1.5s both;
+  }
+
+  .facts li + li::before {
+    content: '';
+    display: inline-block;
+    width: 1px;
+    height: 0.95em;
+    margin: 0 1.1em;
+    vertical-align: -0.1em;
+    background: var(--color-gold);
+  }
+
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.25rem 1.75rem;
+    margin-top: 2.1rem;
+    animation: rise 1s cubic-bezier(0.2, 0.8, 0.2, 1) 1.7s both;
+  }
+
+  .copy a {
+    pointer-events: auto;
+  }
+
+  .btn-link {
+    padding: 0.4rem 0;
+    border-bottom: 1px solid rgb(246 237 214 / 0.35);
+    color: var(--color-cream);
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 0.95rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: border-color 200ms ease, color 200ms ease;
+  }
+
+  .btn-link:hover {
+    color: var(--color-gold);
+    border-color: var(--color-gold);
+  }
+
+  @keyframes line-up {
+    from { transform: translateY(105%); }
+    to { transform: translateY(0); }
+  }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(1.1rem); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes grow {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+
+  /* Finale-Zeile: erscheint am Ende der Kamerafahrt aus der Dunkelheit */
+  .awake {
+    position: relative;
+    z-index: 26;
+    align-self: center;
+    justify-self: center;
+    margin: 0;
+    padding: 0 1.25rem;
+    text-align: center;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(2.6rem, 8vw, 7rem);
+    line-height: 1;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-gold);
+    text-shadow: 0 0 60px rgb(255 140 40 / 0.45);
+    opacity: 0;
+    pointer-events: none;
+    will-change: transform, opacity;
+  }
+
+  .scroll-hint {
+    position: relative;
+    z-index: 26;
+    align-self: end;
+    justify-self: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: max(1.25rem, 3.5vh);
+    color: var(--color-cream);
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 0.72rem;
+    letter-spacing: 0.34em;
+    text-indent: 0.34em;
+    text-transform: uppercase;
+    text-decoration: none;
+    animation: rise 1s ease 2.2s backwards;
+  }
+
+  .scroll-hint i {
+    position: relative;
+    display: block;
+    width: 1px;
+    height: 3.2rem;
+    overflow: hidden;
+    background: rgb(246 237 214 / 0.22);
+  }
+
+  .scroll-hint i::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--color-gold);
+    animation: hint 2.2s cubic-bezier(0.6, 0, 0.3, 1) infinite;
+  }
+
+  @keyframes hint {
+    0% { transform: translateY(-100%); }
+    60%, 100% { transform: translateY(100%); }
+  }
+
+  /* ---------- Mobil ---------- */
+  @media (max-width: 767px) {
+    .hero { height: 220vh; }
+
+    /* Handy: nur zwei Bildebenen (verschmolzener Hintergrund + Vordergrund), Rest entfällt.
+       Das hält den GPU-Speicher klein – neun Vollformat-Ebenen ließen Android-Chrome flackern. */
+    .layer[data-layer='castle'],
+    .layer[data-layer='trees'],
+    .layer[data-layer='mist'],
+    .layer[data-layer='fogback'],
+    .layer[data-layer='fogfront'],
+    .layer[data-layer='branches'],
+    .layer[data-layer='bats'] .cover {
+      display: none;
+    }
+
+    /* Bildbox im Seitenverhältnis des Hochformat-Ausschnitts (700×941), gleiche "cover"-Logik wie am Desktop */
+    .layer[data-layer='sky'] .cover,
+    .layer[data-layer='fg'] .cover {
+      --ox: 0.62;
+      --oy: 0.5;
+      --w: max(100cqw, calc(100cqh * 0.7439));
+      --h: calc(var(--w) * 1.3443);
+    }
+
+    .moon-glow { left: 79.3%; top: 18.6%; width: 62%; }
+
+    .copy {
+      align-self: start;
+      align-items: center;
+      text-align: center;
+      padding-top: max(5.5rem, 12vh);
+    }
+
+    /* Weicher dunkler Schleier hinter dem Text, damit Datum & Co. auf dem Schloss lesbar bleiben */
+    .copy::before {
+      content: '';
+      position: absolute;
+      z-index: -1;
+      inset: -1rem -2rem -3rem;
+      pointer-events: none;
+      background: radial-gradient(
+        ellipse 78% 62% at 50% 46%,
+        rgb(7 11 20 / 0.82) 0%,
+        rgb(7 11 20 / 0.6) 52%,
+        transparent 82%
+      );
+    }
+
+    .eyebrow {
+      font-size: 0.75rem;
+      letter-spacing: 0.24em;
+      text-shadow: 0 1px 3px rgb(0 0 0 / 0.9), 0 0 16px rgb(0 0 0 / 0.8);
+    }
+    .eyebrow__rule { display: none; }
+    .title { font-size: clamp(3.2rem, 16.5vw, 6rem); }
+
+    .facts {
+      flex-direction: column;
+      align-items: center;
+      gap: 0.2rem;
+      margin-top: 1.4rem;
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: 0.1em;
+      text-shadow: 0 1px 3px rgb(0 0 0 / 0.95), 0 0 20px rgb(0 0 0 / 0.85);
+    }
+    .facts li:first-child { font-size: 1.6rem; letter-spacing: 0.08em; }
+    .facts li:nth-child(2) { color: var(--color-gold); }
+    .facts li + li::before { display: none; }
+
+    .cta { justify-content: center; gap: 0.75rem; margin-top: 1.6rem; }
+    .btn-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 3rem;
+      padding: 0 1.25rem;
+      border: 1px solid rgb(246 237 214 / 0.7);
+      background: rgb(7 11 20 / 0.6);
+      font-weight: 600;
+      font-size: 0.95rem;
+      letter-spacing: 0.12em;
+    }
+
+    .shade {
+      background:
+        linear-gradient(to bottom, rgb(7 11 20 / 0.88) 0%, rgb(7 11 20 / 0.6) 40%, transparent 66%),
+        linear-gradient(to top, rgb(7 11 20 / 0.9) 0%, rgb(7 11 20 / 0.35) 14%, transparent 34%);
+    }
+
+  }
+
+  /* Niedrige Bildschirme (kleine Handys, Querformat): kompakter, ohne Scroll-Hinweis */
+  @media (max-height: 700px) {
+    .scroll-hint { display: none; }
+  }
+
+  @media (max-width: 767px) and (max-height: 700px) {
+    .copy { padding-top: 5rem; }
+    .title { font-size: clamp(2.8rem, 14.5vw, 4.4rem); }
+    .facts { margin-top: 1rem; }
+    .facts li:first-child { font-size: 1.45rem; }
+    .cta { margin-top: 1.2rem; }
+  }
+
+  /* ---------- Reduzierte Bewegung ---------- */
+  @media (prefers-reduced-motion: reduce) {
+    .hero { height: auto; }
+    .hero__pin { position: relative; }
+
+    .camera,
+    .curtain,
+    .eyebrow,
+    .eyebrow__rule,
+    .title__line > span,
+    .facts,
+    .cta,
+    .scroll-hint,
+    .scroll-hint i::after,
+    .fog,
+    .cover :global(img.bats),
+    .flyer,
+    .moon-glow {
+      animation: none;
+    }
+
+    .curtain,
+    .veil,
+    .awake,
+    .scroll-hint,
+    .flyer,
+    .embers { display: none; }
+  }
+</style>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-hero]');
+
+  if (root) {
+    const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+    const pin = root.querySelector<HTMLElement>('.hero__pin')!;
+    const copy = root.querySelector<HTMLElement>('[data-copy]')!;
+    const awake = root.querySelector<HTMLElement>('[data-awake]')!;
+    const hint = root.querySelector<HTMLElement>('[data-hint]')!;
+    const veil = root.querySelector<HTMLElement>('[data-veil]')!;
+    const canvas = root.querySelector<HTMLCanvasElement>('[data-embers]')!;
+
+    // Kamerafahrt: Skalierung (Start → Ende), Drift in vw/vh, Maus-Parallax in vw/vh.
+    // Je weiter vorn die Ebene, desto größer Zoom und Mausausschlag.
+    type Rig = { s0: number; s1: number; tx?: number; ty?: number; px: number; py: number; ox: string; oy: string };
+    const rigs: Record<string, Rig> = {
+      sky: { s0: 1.06, s1: 1.15, px: 0.5, py: 0.3, ox: '60%', oy: '30%' },
+      castle: { s0: 1.05, s1: 1.34, px: 0.9, py: 0.5, ox: '62%', oy: '58%' },
+      fogback: { s0: 1.05, s1: 1.42, px: 1.1, py: 0.5, ox: '62%', oy: '62%' },
+      trees: { s0: 1.05, s1: 1.52, px: 1.3, py: 0.7, ox: '62%', oy: '62%' },
+      mist: { s0: 1.06, s1: 1.8, px: 1.6, py: 0.9, ox: '55%', oy: '52%' },
+      fogfront: { s0: 1.06, s1: 2.0, px: 1.8, py: 0.9, ox: '50%', oy: '52%' },
+      bats: { s0: 1.05, s1: 1.5, tx: 5, ty: -9, px: 2.2, py: 1.2, ox: '70%', oy: '30%' },
+      fg: { s0: 1.06, s1: 2.5, px: 2.2, py: 1.3, ox: '50%', oy: '46%' },
+      branches: { s0: 1.05, s1: 2.2, px: 2.4, py: 1.2, ox: '50%', oy: '46%' },
+    };
+    // Handy: nur zwei Ebenen (verschmolzener Hintergrund + Vordergrund), siehe CSS
+    const mobileRigs: Record<string, Rig> = {
+      sky: { s0: 1.04, s1: 1.36, px: 0, py: 0, ox: '60%', oy: '56%' },
+      fg: { s0: 1.05, s1: 2.1, px: 0, py: 0, ox: '50%', oy: '72%' },
+    };
+    const narrow = window.matchMedia('(max-width: 767px)');
+    const layers = [...root.querySelectorAll<HTMLElement>('[data-layer]')].map((el) => ({
+      el,
+      rig: undefined as Rig | undefined,
+    }));
+    const applyRigs = () => {
+      const set = narrow.matches ? mobileRigs : rigs;
+      for (const layer of layers) {
+        layer.rig = set[layer.el.dataset.layer ?? ''];
+        layer.el.style.transformOrigin = layer.rig ? `${layer.rig.ox} ${layer.rig.oy}` : '';
+        if (!layer.rig) layer.el.style.transform = '';
+      }
+    };
+    applyRigs();
+    narrow.addEventListener('change', () => {
+      applyRigs();
+      render();
+    });
+
+    const clamp01 = (v: number) => Math.min(Math.max(v, 0), 1);
+    const scrub = (p: number, a: number, b: number) => clamp01((p - a) / (b - a));
+    const smoother = (t: number) => t * t * t * (t * (t * 6 - 15) + 10);
+    const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+
+    let target = 0;
+    let current = 0;
+    let pointerX = 0;
+    let pointerY = 0;
+    let smoothX = 0;
+    let smoothY = 0;
+    let vw = window.innerWidth;
+    let vh = pin.offsetHeight;
+    let raf = 0;
+    let last = 0;
+    let velocity = 0;
+
+    const readScroll = () => {
+      const scrollable = root.offsetHeight - pin.offsetHeight;
+      const passed = clamp01(-root.getBoundingClientRect().top / Math.max(scrollable, 1));
+      target = scrollable > 0 ? passed : 0;
+    };
+
+    const render = () => {
+      const p = current;
+      const travel = smoother(scrub(p, 0, 0.82));
+
+      for (const { el, rig } of layers) {
+        if (!rig) continue;
+        const scale = lerp(rig.s0, rig.s1, travel);
+        const x = (rig.tx ?? 0) * travel * (vw / 100) + smoothX * rig.px * (vw / 100);
+        const y = (rig.ty ?? 0) * travel * (vh / 100) + smoothY * rig.py * (vh / 100);
+        el.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0) scale(${scale.toFixed(4)})`;
+      }
+
+      // Titelblock: hebt sich weg, verschwimmt und blendet aus
+      const out = smoother(scrub(p, 0.02, 0.3));
+      copy.style.opacity = String(1 - out);
+      copy.style.transform = `translate3d(0, ${(-out * 9).toFixed(2)}vh, 0) scale(${(1 - out * 0.05).toFixed(4)})`;
+      copy.inert = out > 0.6;
+
+      hint.style.opacity = String(1 - scrub(p, 0, 0.08));
+
+      // Szene versinkt in Nacht, Finale-Zeile taucht aus dem Dunkel auf
+      const dark = smoother(scrub(p, 0.52, 0.92));
+      veil.style.opacity = dark.toFixed(3);
+
+      const reveal = smoother(scrub(p, 0.62, 0.88));
+      awake.style.opacity = reveal.toFixed(3);
+      awake.style.transform = `translate3d(0, ${((1 - reveal) * 4).toFixed(2)}vh, 0)`;
+
+    };
+
+    const loop = (now: number) => {
+      const dt = Math.min((now - last) / 1000 || 0.016, 0.05);
+      last = now;
+      const k = 1 - Math.exp(-dt * 6);
+      const before = current;
+      current += (target - current) * k;
+      smoothX += (pointerX - smoothX) * (1 - Math.exp(-dt * 4));
+      smoothY += (pointerY - smoothY) * (1 - Math.exp(-dt * 4));
+      velocity = (current - before) / Math.max(dt, 0.001);
+      render();
+
+      const settled =
+        Math.abs(target - current) < 0.0002 &&
+        Math.abs(pointerX - smoothX) < 0.002 &&
+        Math.abs(pointerY - smoothY) < 0.002;
+      if (settled) {
+        current = target;
+        smoothX = pointerX;
+        smoothY = pointerY;
+        render();
+        raf = 0;
+      } else {
+        raf = requestAnimationFrame(loop);
+      }
+    };
+
+    const wake = () => {
+      if (!raf) {
+        last = performance.now();
+        raf = requestAnimationFrame(loop);
+      }
+    };
+
+    const onScroll = () => {
+      readScroll();
+      wake();
+    };
+
+    const onPointer = (e: PointerEvent) => {
+      pointerX = (e.clientX / vw - 0.5) * 2;
+      pointerY = (e.clientY / vh - 0.5) * 2;
+      wake();
+    };
+
+    // ---------- Glut-Partikel ----------
+    const ctx = canvas.getContext('2d');
+    type Ember = { x: number; y: number; r: number; speed: number; drift: number; phase: number; depth: number; life: number };
+    let embers: Ember[] = [];
+    let w = 0;
+    let h = 0;
+    let dpr = 1;
+    let emberRaf = 0;
+    let emberLast = 0;
+    let heroVisible = true;
+
+    const sprite = document.createElement('canvas');
+    sprite.width = sprite.height = 64;
+    const sctx = sprite.getContext('2d')!;
+    const grad = sctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+    grad.addColorStop(0, 'rgba(255, 244, 205, 1)');
+    grad.addColorStop(0.2, 'rgba(255, 176, 74, 0.85)');
+    grad.addColorStop(0.55, 'rgba(255, 96, 20, 0.22)');
+    grad.addColorStop(1, 'rgba(255, 70, 0, 0)');
+    sctx.fillStyle = grad;
+    sctx.fillRect(0, 0, 64, 64);
+
+    const spawn = (initial: boolean): Ember => {
+      const depth = Math.random();
+      return {
+        x: Math.random() * w,
+        y: initial ? Math.random() * h : h + 20,
+        r: 0.7 + depth * depth * 3.4,
+        speed: 14 + depth * 46,
+        drift: 6 + Math.random() * 16,
+        phase: Math.random() * Math.PI * 2,
+        depth,
+        life: 0.4 + Math.random() * 0.6,
+      };
+    };
+
+    const resizeCanvas = () => {
+      dpr = finePointer.matches ? Math.min(window.devicePixelRatio || 1, 2) : 1;
+      w = canvas.clientWidth;
+      h = canvas.clientHeight;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      const count = w < 768 ? 18 : 56;
+      embers = Array.from({ length: count }, () => spawn(true));
+    };
+
+    const drawEmbers = (now: number) => {
+      if (!ctx) return;
+      const dt = Math.min((now - emberLast) / 1000 || 0.016, 0.05);
+      emberLast = now;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, w, h);
+      ctx.globalCompositeOperation = 'lighter';
+
+      // Beim Scrollen steigt die Glut schneller und zieht mit der Kamera mit
+      const boost = 1 + Math.min(Math.abs(velocity) * 14, 4);
+      const rise = current * h * 0.5;
+      const intensity = 1 - smoother(scrub(current, 0.6, 0.95)) * 0.3;
+
+      for (let i = 0; i < embers.length; i++) {
+        const e = embers[i];
+        e.y -= e.speed * dt * boost;
+        e.phase += dt * (0.8 + e.depth);
+        const x = e.x + Math.sin(e.phase) * e.drift;
+        const y = e.y + rise * e.depth;
+        if (e.y < -20) {
+          embers[i] = spawn(false);
+          continue;
+        }
+        const fadeEdge = clamp01(Math.min(e.y, h - e.y) / (h * 0.18));
+        const flicker = 0.8 + 0.2 * Math.sin(e.phase * 1.7);
+        ctx.globalAlpha = clamp01(e.life * flicker * fadeEdge * intensity);
+        const size = e.r * 7;
+        ctx.drawImage(sprite, x - size / 2, y - size / 2, size, size);
+      }
+      ctx.globalAlpha = 1;
+    };
+
+    const emberLoop = (now: number) => {
+      drawEmbers(now);
+      emberRaf = heroVisible && !document.hidden ? requestAnimationFrame(emberLoop) : 0;
+    };
+
+    const startEmbers = () => {
+      if (!emberRaf && heroVisible && !document.hidden && !motion.matches) {
+        emberLast = performance.now();
+        emberRaf = requestAnimationFrame(emberLoop);
+      }
+    };
+
+    // ---------- Start / Reduced Motion ----------
+    const touch = window.matchMedia('(pointer: coarse)');
+    const onResize = () => {
+      // Android: die Adressleiste löst beim Scrollen "resize" aus – nur auf echte Breitenänderung reagieren
+      if (touch.matches && window.innerWidth === vw) return;
+      vw = window.innerWidth;
+      vh = pin.offsetHeight;
+      resizeCanvas();
+      onScroll();
+    };
+
+    const enable = () => {
+      readScroll();
+      current = target;
+      render();
+      document.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onResize);
+      if (finePointer.matches) window.addEventListener('pointermove', onPointer, { passive: true });
+      resizeCanvas();
+      startEmbers();
+    };
+
+    const disable = () => {
+      document.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('pointermove', onPointer);
+      cancelAnimationFrame(raf);
+      cancelAnimationFrame(emberRaf);
+      raf = emberRaf = 0;
+      for (const { el } of layers) el.style.transform = '';
+      for (const el of [copy, awake, hint, veil]) {
+        el.removeAttribute('style');
+      }
+      copy.inert = false;
+    };
+
+    const sync = () => (motion.matches ? disable() : enable());
+
+    new IntersectionObserver(([entry]) => {
+      heroVisible = entry.isIntersecting;
+      if (heroVisible) startEmbers();
+    }).observe(root);
+    document.addEventListener('visibilitychange', startEmbers);
+    motion.addEventListener('change', sync);
+    sync();
+  }
+</script>

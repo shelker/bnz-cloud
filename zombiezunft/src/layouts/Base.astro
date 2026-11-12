@@ -1,0 +1,70 @@
+---
+import '../styles/global.css';
+import CookieBanner from '../components/CookieBanner.astro';
+import { links } from '../config/event.ts';
+
+interface Props {
+  title: string;
+  description: string;
+  path?: string;
+}
+
+const { title, description, path = '/' } = Astro.props;
+const canonical = new URL(path, Astro.site);
+const image = new URL('/og.jpg', Astro.site);
+const fullTitle = `${title} | Bedburger Zombiezunft`;
+---
+
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#070b14" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="de_DE" />
+    <meta property="og:site_name" content="Bedburger Zombiezunft" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={image} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Halloween Party im Schloss Bedburg am 31.10.2027, ab 19 Uhr" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={image} />
+    <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip" href="#inhalt">Zum Inhalt</a>
+    <slot />
+    <footer class="border-t border-white/10 px-5 py-10 pb-24 md:pb-10">
+      <div class="mx-auto flex max-w-6xl flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <p class="m-0 font-display text-sm tracking-[0.18em] uppercase">
+          Bedburger Zombiezunft<br />
+          <span class="text-gold">Halloween Party · 31.10.2027</span>
+        </p>
+        <nav aria-label="Rechtliches">
+          <ul class="m-0 flex list-none flex-wrap gap-x-5 gap-y-2 p-0 text-base whitespace-nowrap">
+            <li><a class="text-cream underline decoration-gold/70 underline-offset-4" href={links.impressum} target="_blank" rel="noopener">Impressum</a></li>
+            <li><a class="text-cream underline decoration-gold/70 underline-offset-4" href={links.datenschutz} target="_blank" rel="noopener">Datenschutz</a></li>
+            <li><button type="button" class="cursor-pointer whitespace-nowrap border-0 bg-transparent p-0 font-[inherit] text-[length:inherit] text-cream underline decoration-gold/70 underline-offset-4" data-consent-settings>Cookie-Einstellungen</button></li>
+          </ul>
+        </nav>
+      </div>
+    </footer>
+    <CookieBanner />
+  </body>
+</html>

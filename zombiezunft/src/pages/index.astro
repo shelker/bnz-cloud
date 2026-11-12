@@ -1,0 +1,96 @@
+---
+import Base from '../layouts/Base.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import ParallaxHero from '../components/ParallaxHero.astro';
+import Promo from '../components/Promo.astro';
+import StickyCta from '../components/StickyCta.astro';
+import TicketShop from '../components/TicketShop.astro';
+import { event, eventimPublicUrl } from '../config/event.ts';
+
+const description = event.description;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Event',
+  name: `${event.name} – ${event.organizer}`,
+  description,
+  startDate: event.dateTime,
+  eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+  eventStatus: 'https://schema.org/EventScheduled',
+  image: new URL('/og.jpg', Astro.site).href,
+  url: Astro.site?.href,
+  location: {
+    '@type': 'Place',
+    name: event.place,
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: 'Bedburg',
+      addressCountry: 'DE',
+    },
+  },
+  organizer: {
+    '@type': 'Organization',
+    name: event.organizer,
+    url: Astro.site?.href,
+  },
+  typicalAgeRange: '30-',
+  offers: [
+    ...(event.earlyBite.active
+      ? [
+          {
+            '@type': 'Offer',
+            name: event.earlyBite.label,
+            url: eventimPublicUrl,
+            price: '16.00',
+            priceCurrency: 'EUR',
+            availability: 'https://schema.org/LimitedAvailability',
+            validFrom: '2026-10-09T00:00:00+02:00',
+          },
+        ]
+      : []),
+    {
+      '@type': 'Offer',
+      name: 'Ticket',
+      url: eventimPublicUrl,
+      price: '18.00',
+      priceCurrency: 'EUR',
+      availability: 'https://schema.org/InStock',
+      validFrom: '2026-10-09T00:00:00+02:00',
+    },
+  ],
+  endDate: '2027-11-01T03:00:00+01:00',
+  performer: { '@type': 'Organization', name: event.host },
+};
+---
+
+<Base title="Halloween Party 2027" description={description}>
+  <script slot="head" is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  <SiteHeader />
+  <main id="inhalt">
+    <ParallaxHero />
+
+    <Promo />
+
+    <TicketShop />
+  </main>
+  <StickyCta />
+</Base>
+
+<script>
+  const items = document.querySelectorAll<HTMLElement>('.reveal');
+  if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            e.target.classList.add('is-in');
+            io.unobserve(e.target);
+          }
+        }
+      },
+      { rootMargin: '0px 0px -12% 0px', threshold: 0.05 },
+    );
+    items.forEach((el) => io.observe(el));
+  } else {
+    items.forEach((el) => el.classList.add('is-in'));
+  }
+</script>

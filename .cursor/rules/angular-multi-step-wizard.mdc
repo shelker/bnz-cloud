@@ -1,0 +1,54 @@
+---
+description: Multi-step wizard patterns for Angular
+globs: "**/*.component.ts"
+alwaysApply: false
+---
+
+# Angular Multi-Step Wizard
+
+## State & Navigation
+
+- **Step-State**: Verwende eine zentrale Variable (z. B. `step: 'config' | 'form' | 'success'`) oder ein Enum statt numerischer Indizes.
+
+```typescript
+// ✅ GUT: Klarer Step-Type
+step = signal<'config' | 'form' | 'success'>('config');
+goToForm() {
+  if (this.selectionList().length > 0) this.step.set('form');
+}
+goBack() { this.step.set('config'); }
+```
+- **Weiter**: Nur bei gültiger Auswahl/Bedingung navigieren (z. B. `selectionList.length > 0`).
+- **Zurück**: Auf allen Schritten außer dem ersten einen sichtbaren Zurück-Button anbieten.
+
+## Orientierung
+
+- **Header**: Schrittabhängiger Intro-Text + Step-Indicator (z. B. „Schritt 1 von 2“).
+- **Zusammenfassung**: Beim Wechsel in den nächsten Schritt die getroffene Auswahl kurz zusammenfassen (z. B. „Du hast X Paket(e) für Y € gewählt“).
+
+## Leere Zustände & Hinweise
+
+- **Warenkorb/Auswahl**: Leeren Zustand mit klarer Aufforderung („Deine Auswahl erscheint hier“) + Kombi-/Rabatt-Hinweis.
+- **Hinweise**: Kombi- und Rabattinfos früh und kompakt platzieren, z. B. als Karte oberhalb der Hauptauswahl.
+
+## Formular-Schritt
+
+- **Validierung**: „Weiter“/„Absenden“ erst bei gültigem Formular aktivieren (z. B. über `formValid`/`FormGroup.valid`).
+- **Layout**: Formular + Sidebar/Summary nebeneinander; kompakte Gruppierung der Felder.
+
+## Erfolgsseite
+
+- Freundlicher Bestätigungstext mit konkreten nächsten Schritten („Was passiert als Nächstes?“).
+- Wichtige Kontaktdaten (E-Mail) anzeigen.
+
+## Mobile
+
+- **Sticky Bar**: Fixierte Bar am unteren Rand mit Auswahl-Count und Gesamtpreis.
+- **Ausklappbare Auswahl**: Details ein-/ausklappbar (z. B. `expanded` Toggle).
+- **Step-aware CTA**: Bar zeigt je nach Schritt „Weiter“ oder „Absenden“; bei Formular-Schritt Validierung berücksichtigen.
+
+## UX-Details
+
+- Leichte Fade-Animation beim Wechsel der Schritte (`animate-fade-in`).
+- Preisgarantie und Zusatzinfos kompakt darstellen.
+- Keine Dev-Notizen oder Debug-Texte im UI; Footer neutral halten.

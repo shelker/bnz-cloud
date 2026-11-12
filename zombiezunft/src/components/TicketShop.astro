@@ -1,0 +1,191 @@
+---
+import { event, eventimFrameId, eventimPublicUrl, eventimScriptUrl, eventimShopUrl, isEventimReady } from '../config/event.ts';
+
+const ready = isEventimReady(eventimShopUrl);
+---
+
+<section id="tickets" class="tickets scroll-mt-8 px-5 py-20 md:py-28" aria-labelledby="tickets-title">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal">
+      <p class="m-0 font-display text-sm tracking-[0.28em] text-gold uppercase">Tickets</p>
+      <h2
+        id="tickets-title"
+        class="mt-2 mb-5 font-display text-4xl leading-[0.95] font-bold tracking-wide uppercase md:text-7xl"
+      >
+        Sichere dir<br />dein Ticket
+      </h2>
+      <p class="mb-3 max-w-2xl text-xl">
+        {event.dateLabel}, {event.timeLabel}, {event.place}. <strong class="text-cream">{event.price}</strong> {event.priceNote}. Der Vorverkauf läuft direkt hier, sicher über EVENTIM.Light.
+      </p>
+      {
+        event.earlyBite.active && (
+          <div class="early-bite" role="note">
+            <p class="early-bite__label">{event.earlyBite.label}</p>
+            <p class="early-bite__price">
+              {event.earlyBite.price} <span>statt {event.price}</span>
+            </p>
+            <p class="early-bite__note">
+              {event.priceNote}. Wer zuerst beißt, zahlt weniger.
+            </p>
+          </div>
+        )
+      }
+      <p class="mb-10 max-w-2xl font-semibold text-gold">
+        Die Kartenzahl ist begrenzt. Sichere dir deins, bevor die Zombies es tun.
+      </p>
+    </div>
+
+    {
+      ready ? (
+        <div
+          class="ticket-wrap reveal"
+          data-shop
+          data-src={eventimShopUrl}
+          data-frame-id={eventimFrameId}
+          data-script={eventimScriptUrl}
+        >
+          <div class="shop-gate" data-shop-gate>
+            <p class="shop-gate__title">Ticketshop laden</p>
+            <p class="shop-gate__text">
+              Der Verkauf läuft über EVENTIM.Light. Beim Laden des Shops werden Daten an EVENTIM übertragen. Wenn du das
+              nicht möchtest, öffne den Shop einfach in einem neuen Tab.
+            </p>
+            <div class="shop-gate__actions">
+              <button type="button" class="btn" data-shop-load>Ticketshop hier laden</button>
+              <a class="btn-ghost" href={eventimPublicUrl} target="_blank" rel="noopener noreferrer">
+                In neuem Tab öffnen
+              </a>
+            </div>
+          </div>
+          <p class="mt-4 text-base" data-shop-fallback hidden>
+            <a
+              class="text-cream underline decoration-gold underline-offset-4"
+              href={eventimPublicUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Ticketshop in neuem Tab öffnen
+            </a>
+          </p>
+        </div>
+      ) : (
+        <div class="placeholder-note" role="status">
+          <p class="m-0 text-xl font-semibold">Der Ticketverkauf startet in Kürze.</p>
+          <p class="mt-2 mb-0">Sobald der EVENTIM.Light-Shop freigeschaltet ist, erscheint er an dieser Stelle.</p>
+        </div>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .shop-gate {
+    padding: clamp(1.5rem, 4vw, 2.75rem);
+    border: 1px solid rgb(246 237 214 / 0.16);
+    background: rgb(246 237 214 / 0.03);
+  }
+
+  .shop-gate__title {
+    margin: 0 0 0.6rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(1.6rem, 3.4vw, 2.4rem);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .shop-gate__text {
+    max-width: 38rem;
+    margin: 0 0 1.5rem;
+    color: rgb(246 237 214 / 0.82);
+  }
+
+  .shop-gate__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9rem;
+  }
+
+  .early-bite {
+    display: inline-block;
+    margin: 0 0 2.5rem;
+    padding: 1.1rem 1.5rem 1.2rem;
+    border: 2px solid var(--color-ember);
+    background: rgb(255 106 26 / 0.08);
+  }
+
+  .early-bite__label {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 0.9rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--color-ember);
+  }
+
+  .early-bite__price {
+    margin: 0.2rem 0 0.4rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(2.4rem, 6vw, 3.6rem);
+    line-height: 1;
+    color: var(--color-gold);
+  }
+
+  .early-bite__price span {
+    font-size: 0.4em;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgb(246 237 214 / 0.7);
+    text-decoration: line-through;
+    text-decoration-color: var(--color-ember);
+  }
+
+  .early-bite__note {
+    margin: 0;
+    color: rgb(246 237 214 / 0.82);
+  }
+
+  .tickets {
+    background: linear-gradient(to bottom, var(--color-night), #0d0a12 40%, var(--color-night));
+  }
+</style>
+
+<script>
+  import { getConsent, onConsent, setConsent } from '../lib/consent';
+
+  const wrap = document.querySelector<HTMLElement>('[data-shop]');
+
+  if (wrap) {
+    let mounted = false;
+    const mount = () => {
+      if (mounted) return;
+      mounted = true;
+      const { src, frameId, script } = wrap.dataset;
+      const frame = document.createElement('iframe');
+      frame.id = frame.name = frameId ?? '';
+      frame.className = 'ticket-frame';
+      frame.title = 'Ticketshop von EVENTIM.Light';
+      frame.src = src ?? '';
+      frame.width = '100%';
+      frame.scrolling = 'no';
+      frame.setAttribute('frameborder', '0');
+      frame.dataset.scroll = 'true';
+      frame.dataset.scrollOffsetY = '0';
+      wrap.querySelector('[data-shop-gate]')?.replaceWith(frame);
+      const loader = document.createElement('script');
+      loader.src = script ?? '';
+      wrap.appendChild(loader);
+      wrap.querySelector<HTMLElement>('[data-shop-fallback]')?.removeAttribute('hidden');
+    };
+
+    wrap.querySelector('[data-shop-load]')?.addEventListener('click', () => {
+      setConsent({ stats: getConsent()?.stats ?? false, media: true });
+    });
+    onConsent((c) => {
+      if (c.media) mount();
+    });
+  }
+</script>

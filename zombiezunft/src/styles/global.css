@@ -1,0 +1,194 @@
+@import "tailwindcss";
+@import "@fontsource/oswald/500.css";
+@import "@fontsource/oswald/600.css";
+@import "@fontsource/oswald/700.css";
+@import "@fontsource/source-sans-3/400.css";
+@import "@fontsource/source-sans-3/600.css";
+@import "@fontsource/source-sans-3/700.css";
+
+@theme {
+  --font-display: "Oswald", sans-serif;
+  --font-sans: "Source Sans 3", sans-serif;
+  --color-night: #070b14;
+  --color-night-2: #100c12;
+  --color-cream: #f6edd6;
+  --color-gold: #e6c36a;
+  --color-ember: #ff6a1a;
+  --color-ink: #140c08;
+}
+
+:root {
+  --maxw: 72rem;
+  --gutter: 1.25rem;
+  /* linke/rechte Kante des Inhaltsrasters, auch für vollflächige Elemente */
+  --edge: max(var(--gutter), calc((100% - var(--maxw)) / 2));
+  /* Hero und Kopfleiste: auf breiten Bildschirmen enger am Rand, damit der Titel das Schloss freilässt */
+  --edge-hero: max(var(--gutter), min(calc((100% - var(--maxw)) / 2), 6vw));
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--color-night);
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--color-night);
+  color: var(--color-cream);
+  font-family: var(--font-sans);
+  font-size: 1.125rem;
+  line-height: 1.6;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-gold);
+  color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-gold);
+  outline-offset: 3px;
+}
+
+.skip {
+  position: absolute;
+  left: 1rem;
+  top: -4.5rem;
+  z-index: 50;
+  background: var(--color-cream);
+  color: var(--color-ink);
+  padding: 0.75rem 1rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.skip:focus {
+  top: 1rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  padding: 0.75rem 1.35rem;
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background-color 160ms ease;
+}
+
+.btn:hover {
+  background: var(--color-gold);
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  padding: 0.75rem 1.35rem;
+  border: 1px solid var(--color-gold);
+  color: var(--color-cream);
+  background: transparent;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.btn-ghost:hover {
+  background: rgb(230 195 106 / 0.12);
+}
+
+.lockup {
+  display: grid;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.lockup-date {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(3.2rem, 9vw, 6.4rem);
+  line-height: 0.88;
+  letter-spacing: 0.01em;
+}
+
+.lockup-meta {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.35rem, 3vw, 2rem);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.lockup-rule {
+  width: 100%;
+  height: 1px;
+  background: var(--color-gold);
+}
+
+.ticket-frame {
+  width: 100%;
+  min-height: 42rem;
+  border: 0;
+  background: #120e16;
+}
+
+.placeholder-note {
+  border: 1px dashed rgb(230 195 106 / 0.7);
+  background: rgb(230 195 106 / 0.06);
+  padding: 0.85rem 1rem;
+}
+
+@media (min-width: 768px) {
+  .lockup {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 2.5rem;
+  }
+
+  .lockup-rule {
+    width: 1px;
+    height: 7.5rem;
+  }
+
+  .ticket-frame { min-height: 56rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+/* Scroll-Reveal (nur mit JS aktiv, sonst bleibt alles sichtbar) */
+.js .reveal {
+  opacity: 0;
+  transform: translateY(1.75rem);
+  transition:
+    opacity 900ms cubic-bezier(0.2, 0.8, 0.2, 1) var(--d, 0ms),
+    transform 900ms cubic-bezier(0.2, 0.8, 0.2, 1) var(--d, 0ms);
+}
+
+.js .reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
